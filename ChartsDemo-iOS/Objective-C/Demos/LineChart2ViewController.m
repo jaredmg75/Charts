@@ -12,7 +12,7 @@
 #import "LineChart2ViewController.h"
 #import "ChartsDemo_iOS-Swift.h"
 
-@interface LineChart2ViewController () <ChartViewDelegate>
+@interface LineChart2ViewController () <ChartViewDelegate, IChartAxisValueFormatter>
 
 @property (nonatomic, strong) IBOutlet LineChartView *chartView;
 @property (nonatomic, strong) IBOutlet UISlider *sliderX;
@@ -58,24 +58,28 @@
     
     _chartView.backgroundColor = UIColor.blackColor;
     [_chartView.legend setEnabled:NO];
-
     
     ChartXAxis *xAxis = _chartView.xAxis;
     xAxis.labelFont = [UIFont systemFontOfSize:11.f];
     xAxis.labelTextColor = UIColor.whiteColor;
     xAxis.drawGridLinesEnabled = NO;
-    xAxis.drawAxisLineEnabled = NO;
-    xAxis.axisLineDashLengths = @[@4];
-    xAxis.axisLineDashPhase = 4;
+    xAxis.axisLineWidth = 6;
+    xAxis.drawAxisLineEnabled = YES;
+    xAxis.axisLineDashLengths = @[@1, @10];
     xAxis.labelPosition = XAxisLabelPositionBottom;
+    
+    [xAxis setValueFormatter:self];
     
     ChartYAxis *leftAxis = _chartView.leftAxis;
     leftAxis.drawGridLinesEnabled = NO;
-    leftAxis.drawAxisLineEnabled = NO;
     leftAxis.drawZeroLineEnabled = NO;
     leftAxis.granularityEnabled = NO;
     leftAxis.drawLabelsEnabled = NO;
-    
+    leftAxis.drawAxisLineEnabled = YES;
+    leftAxis.axisLineWidth = 6;
+    leftAxis.drawAxisLineEnabled = YES;
+    leftAxis.axisLineDashLengths = @[@1, @10];
+
     ChartYAxis *rightAxis = _chartView.rightAxis;
     rightAxis.drawGridLinesEnabled = NO;
     rightAxis.drawAxisLineEnabled = NO;
@@ -102,6 +106,22 @@
     [_chartView animateWithXAxisDuration:2.5];
 }
 
+#pragma mark - IAxisValueFormatter
+
+- (NSString *)stringForValue:(double)value
+                        axis:(ChartAxisBase *)axis
+{
+    if (axis == _chartView.xAxis) {
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"h:mm"];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:value];
+        return [dateFormatter stringFromDate:date];
+    }
+    
+    return @"";
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -121,6 +141,9 @@
 
 - (void)setDataCount:(int)count range:(double)range
 {
+    double baseDate = 1567123200;
+    double secondsBetweenEntries = 86400 / count;
+    
     NSMutableArray *yVals1 = [[NSMutableArray alloc] init];
     NSMutableArray *yVals2 = [[NSMutableArray alloc] init];
     NSMutableArray *yVals3 = [[NSMutableArray alloc] init];
@@ -129,21 +152,24 @@
     {
         double mult = range / 2.0;
         double val = (double) (arc4random_uniform(mult)) + 50;
-        [yVals1 addObject:[[ChartDataEntry alloc] initWithX:i y:val]];
+        double xVal = baseDate + (secondsBetweenEntries * i);
+        [yVals1 addObject:[[ChartDataEntry alloc] initWithX:xVal y:val]];
     }
     
     for (int i = 0; i < count - 1; i++)
     {
         double mult = range;
         double val = (double) (arc4random_uniform(mult)) + 450;
-        [yVals2 addObject:[[ChartDataEntry alloc] initWithX:i y:val]];
+        double xVal = baseDate + (secondsBetweenEntries * i);
+        [yVals2 addObject:[[ChartDataEntry alloc] initWithX:xVal y:val]];
     }
     
     for (int i = 0; i < count; i++)
     {
         double mult = range;
         double val = (double) (arc4random_uniform(mult)) + 500;
-        [yVals3 addObject:[[ChartDataEntry alloc] initWithX:i y:val]];
+        double xVal = baseDate + (secondsBetweenEntries * i);
+        [yVals3 addObject:[[ChartDataEntry alloc] initWithX:xVal y:val]];
     }
     
     LineChartDataSet *set1 = nil, *set2 = nil, *set3 = nil;
@@ -206,17 +232,20 @@
         set1.highlightColor = UIColor.grayColor;
         set1.drawHorizontalHighlightIndicatorEnabled = NO;
         set1.drawVerticalHighlightIndicatorEnabled = YES;
+        set1.drawValuesEnabled = NO;
         
         set2.highlightLineWidth = 2;
         set2.highlightColor = UIColor.grayColor;
         set2.drawHorizontalHighlightIndicatorEnabled = NO;
         set2.drawVerticalHighlightIndicatorEnabled = YES;
-        
+        set2.drawValuesEnabled = NO;
+
         set3.highlightLineWidth = 2;
         set3.highlightColor = UIColor.grayColor;
         set3.drawHorizontalHighlightIndicatorEnabled = NO;
         set3.drawVerticalHighlightIndicatorEnabled = YES;
-        
+        set3.drawValuesEnabled = NO;
+
         LineChartData *data = [[LineChartData alloc] initWithDataSets:dataSets];
         [data setValueTextColor:UIColor.whiteColor];
         [data setValueFont:[UIFont systemFontOfSize:9.f]];

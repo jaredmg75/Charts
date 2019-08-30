@@ -99,6 +99,35 @@ open class BalloonMarker: MarkerImage
 
         context.setStrokeColor(color.cgColor)
 
+        
+        context.setFillColor(UIColor.black.cgColor)
+        context.beginPath()
+        context.move(to: CGPoint(
+            x: rect.origin.x + arrowSize.width,
+            y: rect.origin.y))
+        context.addLine(to: CGPoint(
+            x: rect.origin.x + arrowSize.width,
+            y: rect.origin.y + (rect.size.height / 2.0) - (arrowSize.height / 2)))
+        context.addLine(to: CGPoint(
+            x: point.x,
+            y: point.y))
+        context.addLine(to: CGPoint(
+            x: rect.origin.x + arrowSize.width,
+            y: rect.origin.y + (rect.size.height / 2.0) + (arrowSize.height / 2)))
+        context.addLine(to: CGPoint(
+            x: rect.origin.x + arrowSize.width,
+            y: rect.origin.y + rect.size.height))
+        context.addLine(to: CGPoint(
+            x: rect.origin.x + arrowSize.width + rect.size.width,
+            y: rect.origin.y + rect.size.height))
+        context.addLine(to: CGPoint(
+            x: rect.origin.x + arrowSize.width + rect.size.width,
+            y: rect.origin.y))
+        context.addLine(to: CGPoint(
+            x: rect.origin.x + arrowSize.width,
+            y: rect.origin.y))
+        context.fillPath()
+
 //        if offset.y > 0
 //        {
             context.beginPath()
@@ -126,8 +155,9 @@ open class BalloonMarker: MarkerImage
             context.addLine(to: CGPoint(
                 x: rect.origin.x + arrowSize.width,
                 y: rect.origin.y))
-//            context.fillPath()
+
             context.drawPath(using: CGPathDrawingMode.stroke)
+
 //        }
 //        else
 //        {
