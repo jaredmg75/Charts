@@ -56,37 +56,44 @@
     _chartView.drawGridBackgroundEnabled = NO;
     _chartView.pinchZoomEnabled = YES;
     
-    _chartView.backgroundColor = [UIColor colorWithWhite:204/255.f alpha:1.f];
-    
-    ChartLegend *l = _chartView.legend;
-    l.form = ChartLegendFormLine;
-    l.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:11.f];
-    l.textColor = UIColor.whiteColor;
-    l.horizontalAlignment = ChartLegendHorizontalAlignmentLeft;
-    l.verticalAlignment = ChartLegendVerticalAlignmentBottom;
-    l.orientation = ChartLegendOrientationHorizontal;
-    l.drawInside = NO;
+    _chartView.backgroundColor = UIColor.blackColor;
+    [_chartView.legend setEnabled:NO];
+
     
     ChartXAxis *xAxis = _chartView.xAxis;
     xAxis.labelFont = [UIFont systemFontOfSize:11.f];
     xAxis.labelTextColor = UIColor.whiteColor;
     xAxis.drawGridLinesEnabled = NO;
     xAxis.drawAxisLineEnabled = NO;
+    xAxis.axisLineDashLengths = @[@4];
+    xAxis.axisLineDashPhase = 4;
+    xAxis.labelPosition = XAxisLabelPositionBottom;
     
     ChartYAxis *leftAxis = _chartView.leftAxis;
-    leftAxis.labelTextColor = [UIColor colorWithRed:51/255.f green:181/255.f blue:229/255.f alpha:1.f];
-    leftAxis.axisMaximum = 200.0;
-    leftAxis.axisMinimum = 0.0;
-    leftAxis.drawGridLinesEnabled = YES;
+    leftAxis.drawGridLinesEnabled = NO;
+    leftAxis.drawAxisLineEnabled = NO;
     leftAxis.drawZeroLineEnabled = NO;
-    leftAxis.granularityEnabled = YES;
+    leftAxis.granularityEnabled = NO;
+    leftAxis.drawLabelsEnabled = NO;
     
     ChartYAxis *rightAxis = _chartView.rightAxis;
-    rightAxis.labelTextColor = UIColor.redColor;
-    rightAxis.axisMaximum = 900.0;
-    rightAxis.axisMinimum = -200.0;
     rightAxis.drawGridLinesEnabled = NO;
+    rightAxis.drawAxisLineEnabled = NO;
+    rightAxis.drawZeroLineEnabled = NO;
     rightAxis.granularityEnabled = NO;
+    rightAxis.drawLabelsEnabled = NO;
+    
+    BalloonMarker *marker = [[BalloonMarker alloc]
+                             initWithColor: UIColor.darkGrayColor
+                             font: [UIFont systemFontOfSize:12.0]
+                             textColor: UIColor.greenColor
+                             insets: UIEdgeInsetsMake(2.0, 2.0, 2.0, 2.0)];
+    marker.chartView = _chartView;
+    marker.minimumSize = CGSizeMake(40.f, 20.f);
+    marker.arrowSize = CGSizeMake(12.0f, 12.0f);
+    
+    _chartView.marker = marker;
+
     
     _sliderX.value = 20.0;
     _sliderY.value = 30.0;
@@ -164,6 +171,7 @@
         set1.fillColor = [UIColor colorWithRed:51/255.f green:181/255.f blue:229/255.f alpha:1.f];
         set1.highlightColor = [UIColor colorWithRed:244/255.f green:117/255.f blue:117/255.f alpha:1.f];
         set1.drawCircleHoleEnabled = NO;
+        set1.drawValuesEnabled = NO;
         
         set2 = [[LineChartDataSet alloc] initWithEntries:yVals2 label:@"DataSet 2"];
         set2.axisDependency = AxisDependencyRight;
@@ -175,7 +183,8 @@
         set2.fillColor = UIColor.redColor;
         set2.highlightColor = [UIColor colorWithRed:244/255.f green:117/255.f blue:117/255.f alpha:1.f];
         set2.drawCircleHoleEnabled = NO;
-        
+        set1.drawValuesEnabled = NO;
+
         set3 = [[LineChartDataSet alloc] initWithEntries:yVals3 label:@"DataSet 3"];
         set3.axisDependency = AxisDependencyRight;
         [set3 setColor:UIColor.yellowColor];
@@ -186,11 +195,27 @@
         set3.fillColor = [UIColor.yellowColor colorWithAlphaComponent:200/255.f];
         set3.highlightColor = [UIColor colorWithRed:244/255.f green:117/255.f blue:117/255.f alpha:1.f];
         set3.drawCircleHoleEnabled = NO;
-        
+        set1.drawValuesEnabled = NO;
+
         NSMutableArray *dataSets = [[NSMutableArray alloc] init];
         [dataSets addObject:set1];
         [dataSets addObject:set2];
         [dataSets addObject:set3];
+        
+        set1.highlightLineWidth = 2;
+        set1.highlightColor = UIColor.grayColor;
+        set1.drawHorizontalHighlightIndicatorEnabled = NO;
+        set1.drawVerticalHighlightIndicatorEnabled = YES;
+        
+        set2.highlightLineWidth = 2;
+        set2.highlightColor = UIColor.grayColor;
+        set2.drawHorizontalHighlightIndicatorEnabled = NO;
+        set2.drawVerticalHighlightIndicatorEnabled = YES;
+        
+        set3.highlightLineWidth = 2;
+        set3.highlightColor = UIColor.grayColor;
+        set3.drawHorizontalHighlightIndicatorEnabled = NO;
+        set3.drawVerticalHighlightIndicatorEnabled = YES;
         
         LineChartData *data = [[LineChartData alloc] initWithDataSets:dataSets];
         [data setValueTextColor:UIColor.whiteColor];
@@ -281,6 +306,9 @@
 - (void)chartValueSelected:(ChartViewBase * __nonnull)chartView entry:(ChartDataEntry * __nonnull)entry highlight:(ChartHighlight * __nonnull)highlight
 {
     NSLog(@"chartValueSelected");
+    
+//    ChartHighlight
+//    [_chartView highlightValues:@[]];
     
     [_chartView centerViewToAnimatedWithXValue:entry.x yValue:entry.y axis:[_chartView.data getDataSetByIndex:highlight.dataSetIndex].axisDependency duration:1.0];
     //[_chartView moveViewToAnimatedWithXValue:entry.x yValue:entry.y axis:[_chartView.data getDataSetByIndex:dataSetIndex].axisDependency duration:1.0];

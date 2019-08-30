@@ -527,9 +527,17 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
                 h = nil
                 _indicesToHighlight.removeAll(keepingCapacity: false)
             }
-            else
+            else if let data = _data
             {
-                _indicesToHighlight = [h!]
+                _indicesToHighlight = []
+
+                for i in 0...data.dataSetCount {
+//                    if i != h!.dataSetIndex
+//                    {
+                        _indicesToHighlight.append(Highlight(x: entry!.x, y: entry!.y, dataSetIndex: i, dataIndex: h!.dataIndex))
+//                    }
+                }
+                
             }
         }
         
