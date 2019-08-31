@@ -172,6 +172,9 @@
         [yVals3 addObject:[[ChartDataEntry alloc] initWithX:xVal y:val]];
     }
     
+//    [values addObject:[[ChartDataEntry alloc] initWithX:i y:val icon: [UIImage imageNamed:@"icon"]]];
+
+    
     LineChartDataSet *set1 = nil, *set2 = nil, *set3 = nil;
     
     if (_chartView.data.dataSetCount > 0)
