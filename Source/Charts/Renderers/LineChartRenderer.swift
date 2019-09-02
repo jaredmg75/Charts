@@ -375,68 +375,69 @@ open class LineChartRenderer: LineRadarRenderer
                 if _lineSegments[2].y != _lineSegments[3].y
                 {
           
+                    let x = _lineSegments[3].x - 2
                     var topPoint: CGPoint
-                    var bottomPoint: CGPoint
-                    var _groundSegments = [CGPoint](repeating: CGPoint(), count: 1)
-                    _groundSegments[0] = CGPoint(x: e!.x, y:0)
-                    _groundSegments[0] = _groundSegments[0].applying(valueToPixelMatrix)
                     var topGroundPoint: CGPoint
-                    let bottomGroundPoint: CGPoint
-
+                    let bottomGroundPoint = CGPoint(x: x + 1 , y:CGPoint(x: e!.x, y:0).applying(valueToPixelMatrix).y)
                     var color: CGColor
                     var toGroundColor: CGColor
+                    let transitioningToNewY = _lineSegments[2].y != _lineSegments[3].y
+
                     if _lineSegments[2].y > _lineSegments[3].y
                     {
-                        topPoint = CGPoint(x: _lineSegments[3].x - 2, y:_lineSegments[3].y)
-                        bottomPoint = _lineSegments[2]
-                        topGroundPoint = CGPoint(x: bottomPoint.x - 2, y:bottomPoint.y)
-                        bottomGroundPoint = CGPoint(x: _groundSegments[0].x - 2 , y:_groundSegments[0].y)
+                        topPoint = CGPoint(x: x, y:_lineSegments[3].y)
+                        topGroundPoint = CGPoint(x: x, y:_lineSegments[2].y)
+                        
                         color = colors[3]
                         toGroundColor = colors[0]
                     }
                     else
                     {
-                        topPoint = CGPoint(x: _lineSegments[2].x + 0.5, y:_lineSegments[2].y)
-                        bottomPoint = _lineSegments[3]
-                        topGroundPoint = CGPoint(x: bottomPoint.x + 0.5, y:bottomPoint.y)
-                        bottomGroundPoint = CGPoint(x: _groundSegments[0].x + 0.5, y:_groundSegments[0].y)
+                        topPoint = CGPoint(x: x, y:_lineSegments[2].y)
+                        topGroundPoint = CGPoint(x: x, y:_lineSegments[3].y)
                         color = colors[0]
                         toGroundColor = colors[3]
                     }
                     
-                    //Draw vertical line between tiers
-                    context.setFillColor(color)
-                    
-                    context.beginPath()
-                    context.move(to: topPoint)
-                    context.addLine(to: CGPoint(
-                        x: topPoint.x + 1.5,
-                        y: topPoint.y))
-                    context.addLine(to: bottomGroundPoint)
-                    context.addLine(to: topPoint)
-                    
-                    context.drawPath(using: CGPathDrawingMode.fill)
-                    
-                    if (e.y != 0) {
-                        //Draw vertical line between bottom tier and ground
-
-                        context.setFillColor(toGroundColor)
-
+                    if transitioningToNewY {
+                        //Draw vertical line between tiers
+                        context.setFillColor(color)
+                        
                         context.beginPath()
-                        context.move(to: topGroundPoint)
+                        context.move(to: topPoint)
                         context.addLine(to: CGPoint(
-                            x: topGroundPoint.x + 1.5,
-                            y: topGroundPoint.y))
+                            x: topPoint.x + 2,
+                            y: topPoint.y))
                         context.addLine(to: bottomGroundPoint)
-                        context.addLine(to: topGroundPoint)
-
+                        context.addLine(to: topPoint)
+                        
                         context.drawPath(using: CGPathDrawingMode.fill)
+                        
+                        if (e.y != 0) {
+                            //Draw vertical line between bottom tier and ground
+                            
+                            context.setFillColor(toGroundColor)
+                            
+                            context.beginPath()
+                            context.move(to: topGroundPoint)
+                            context.addLine(to: CGPoint(
+                                x: topGroundPoint.x + 2,
+                                y: topGroundPoint.y))
+                            context.addLine(to: bottomGroundPoint)
+                            context.addLine(to: topGroundPoint)
+                            
+                            context.drawPath(using: CGPathDrawingMode.fill)
+                        }
                     }
                 }
                 
                 // get the color that is set for this line-segment
                 context.setStrokeColor(colors[0])
-                context.strokeLineSegments(between: [_lineSegments[0], _lineSegments[1]])
+                
+                if _lineSegments[0].x != _lineSegments[1].x {
+                    _lineSegments[1] = CGPoint(x: _lineSegments[1].x - 2, y: _lineSegments[1].y)
+                    context.strokeLineSegments(between: [_lineSegments[0], _lineSegments[1]])
+                }
 
                 context.restoreGState()
 
