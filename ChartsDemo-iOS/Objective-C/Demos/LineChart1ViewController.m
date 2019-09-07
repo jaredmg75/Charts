@@ -12,7 +12,7 @@
 #import "LineChart1ViewController.h"
 #import "ChartsDemo_iOS-Swift.h"
 
-@interface LineChart1ViewController () <ChartViewDelegate>
+@interface LineChart1ViewController () <ChartViewDelegate, IChartAxisValueFormatter>
 
 @property (nonatomic, strong) IBOutlet LineChartView *chartView;
 @property (nonatomic, strong) IBOutlet UISlider *sliderX;
@@ -52,63 +52,36 @@
     
     _chartView.chartDescription.enabled = NO;
     
-    _chartView.dragEnabled = YES;
-    [_chartView setScaleEnabled:YES];
-    _chartView.pinchZoomEnabled = YES;
+    _chartView.backgroundColor = UIColor.blackColor;
+    [_chartView.legend setEnabled:NO];
+
+    
+    _chartView.dragEnabled = NO;
+    [_chartView setScaleEnabled:NO];
+    _chartView.pinchZoomEnabled = NO;
     _chartView.drawGridBackgroundEnabled = NO;
 
-    // x-axis limit line
-    ChartLimitLine *llXAxis = [[ChartLimitLine alloc] initWithLimit:10.0 label:@"Index 10"];
-    llXAxis.lineWidth = 4.0;
-    llXAxis.lineDashLengths = @[@(10.f), @(10.f), @(0.f)];
-    llXAxis.labelPosition = ChartLimitLabelPositionBottomRight;
-    llXAxis.valueFont = [UIFont systemFontOfSize:10.f];
-    
-    //[_chartView.xAxis addLimitLine:llXAxis];
-    
-    _chartView.xAxis.gridLineDashLengths = @[@10.0, @10.0];
-    _chartView.xAxis.gridLineDashPhase = 0.f;
-    
-    ChartLimitLine *ll1 = [[ChartLimitLine alloc] initWithLimit:150.0 label:@"Upper Limit"];
-    ll1.lineWidth = 4.0;
-    ll1.lineDashLengths = @[@5.f, @5.f];
-    ll1.labelPosition = ChartLimitLabelPositionTopRight;
-    ll1.valueFont = [UIFont systemFontOfSize:10.0];
-    
-    ChartLimitLine *ll2 = [[ChartLimitLine alloc] initWithLimit:-30.0 label:@"Lower Limit"];
-    ll2.lineWidth = 4.0;
-    ll2.lineDashLengths = @[@5.f, @5.f];
-    ll2.labelPosition = ChartLimitLabelPositionBottomRight;
-    ll2.valueFont = [UIFont systemFontOfSize:10.0];
+    ChartXAxis *xAxis = _chartView.xAxis;
+    xAxis.labelFont = [UIFont systemFontOfSize:11.f];
+    xAxis.labelTextColor = UIColor.whiteColor;
+    xAxis.drawGridLinesEnabled = NO;
+    xAxis.drawAxisLineEnabled = NO;
+    xAxis.labelPosition = XAxisLabelPositionBottom;
+    [xAxis setValueFormatter:self];
     
     ChartYAxis *leftAxis = _chartView.leftAxis;
-    [leftAxis removeAllLimitLines];
-    [leftAxis addLimitLine:ll1];
-    [leftAxis addLimitLine:ll2];
-    leftAxis.axisMaximum = 200.0;
-    leftAxis.axisMinimum = -50.0;
-    leftAxis.gridLineDashLengths = @[@5.f, @5.f];
-    leftAxis.drawZeroLineEnabled = NO;
-    leftAxis.drawLimitLinesBehindDataEnabled = YES;
+    leftAxis.drawGridLinesEnabled = NO;
+    leftAxis.drawAxisLineEnabled = NO;
     
-    _chartView.rightAxis.enabled = NO;
-    
-    //[_chartView.viewPortHandler setMaximumScaleY: 2.f];
-    //[_chartView.viewPortHandler setMaximumScaleX: 2.f];
-    
-    BalloonMarker *marker = [[BalloonMarker alloc]
-                             initWithColor: [UIColor colorWithWhite:180/255. alpha:1.0]
-                             font: [UIFont systemFontOfSize:12.0]
-                             textColor: UIColor.whiteColor
-                             insets: UIEdgeInsetsMake(8.0, 8.0, 20.0, 8.0)];
-    marker.chartView = _chartView;
-    marker.minimumSize = CGSizeMake(80.f, 40.f);
-    _chartView.marker = marker;
-    
-    _chartView.legend.form = ChartLegendFormLine;
-    
-    _sliderX.value = 45.0;
-    _sliderY.value = 100.0;
+    ChartYAxis *rightAxis = _chartView.rightAxis;
+    rightAxis.drawAxisLineEnabled = NO;
+    [rightAxis setGranularity:1.0];
+    [rightAxis setLabelTextColor:[UIColor whiteColor]];
+
+    [rightAxis setValueFormatter:self];
+
+    _sliderX.value = 10.0;
+    _sliderY.value = 4.0;
     [self slidersValueChanged:nil];
     
     [_chartView animateWithXAxisDuration:2.5];
@@ -134,13 +107,16 @@
 - (void)setDataCount:(int)count range:(double)range
 {
     NSMutableArray *values = [[NSMutableArray alloc] init];
-    
+    double baseDate = 1567123200;
+    double secondsBetweenEntries = 86400 / count;
+
     for (int i = 0; i < count; i++)
     {
-        double val = arc4random_uniform(range) + 3;
-        [values addObject:[[ChartDataEntry alloc] initWithX:i y:val icon: [UIImage imageNamed:@"icon"]]];
+        double val = (int) arc4random_uniform(range) % 4;
+        double xVal = baseDate + (secondsBetweenEntries * i);
+        [values addObject:[[ChartDataEntry alloc] initWithX:xVal y:val]];
     }
-    
+
     LineChartDataSet *set1 = nil;
     if (_chartView.data.dataSetCount > 0)
     {
@@ -152,41 +128,52 @@
     else
     {
         set1 = [[LineChartDataSet alloc] initWithEntries:values label:@"DataSet 1"];
-        
+
         set1.drawIconsEnabled = NO;
-        
-        set1.lineDashLengths = @[@5.f, @2.5f];
-        set1.highlightLineDashLengths = @[@5.f, @2.5f];
-        [set1 setColor:UIColor.blackColor];
-        [set1 setCircleColor:UIColor.blackColor];
-        set1.lineWidth = 1.0;
-        set1.circleRadius = 3.0;
-        set1.drawCircleHoleEnabled = NO;
-        set1.valueFont = [UIFont systemFontOfSize:9.f];
-        set1.formLineDashLengths = @[@5.f, @2.5f];
-        set1.formLineWidth = 1.0;
-        set1.formSize = 15.0;
-        
-        NSArray *gradientColors = @[
-                                    (id)[ChartColorTemplates colorFromString:@"#00ff0000"].CGColor,
-                                    (id)[ChartColorTemplates colorFromString:@"#ffff0000"].CGColor
-                                    ];
-        CGGradientRef gradient = CGGradientCreateWithColors(nil, (CFArrayRef)gradientColors, nil);
-        
-        set1.fillAlpha = 1.f;
-        set1.fill = [ChartFill fillWithLinearGradient:gradient angle:90.f];
-        set1.drawFilledEnabled = YES;
-        
-        CGGradientRelease(gradient);
-        
+        [set1 setColors:@[[UIColor redColor], [UIColor orangeColor], [UIColor yellowColor], [UIColor greenColor]]];
+        [set1 setLineCapType:kCGLineCapSquare];
+        [set1 setLineWidth:4.0];
+        [set1 setFormLineWidth:2.0];
+        [set1 setDrawCirclesEnabled:NO];
+        [set1 setDrawValuesEnabled:NO];
+        [set1 setMode:LineChartModeStepped];
+
         NSMutableArray *dataSets = [[NSMutableArray alloc] init];
         [dataSets addObject:set1];
-        
+
         LineChartData *data = [[LineChartData alloc] initWithDataSets:dataSets];
-        
+
         _chartView.data = data;
     }
+    
+
 }
+
+#pragma mark - IAxisValueFormatter
+
+- (NSString *)stringForValue:(double)value
+                        axis:(ChartAxisBase *)axis
+{
+    if (axis == _chartView.rightAxis) {
+        NSArray *statuses = @[@"Offline", @"Down", @"Warning", @"Up"];
+        if (value > statuses.count || value < 0) {
+            NSLog(@"Invalid status returned %f", value);
+            return @"";
+        }
+        return statuses[(int) value];
+    }
+    
+    if (axis == _chartView.xAxis) {
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"h:mm"];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+        NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:value];
+        return [dateFormatter stringFromDate:date];
+    }
+    
+    return @"";
+}
+
 
 - (void)optionTapped:(NSString *)key
 {
@@ -275,5 +262,6 @@
 {
     NSLog(@"chartValueNothingSelected");
 }
+
 
 @end

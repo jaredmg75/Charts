@@ -1,33 +1,27 @@
 //
-//  BalloonMarker.swift
-//  ChartsDemo
+//  LVBalloonMarker.swift
+//  Charts
 //
-//  Copyright 2015 Daniel Cohen Gindi & Philipp Jahoda
-//  A port of MPAndroidChart for iOS
-//  Licensed under Apache License 2.0
-//
-//  https://github.com/danielgindi/Charts
+//  Created by Jared Green on 9/7/19.
 //
 
 import Foundation
-import Charts
 
-
-open class BalloonMarker: MarkerImage
+open class LVBalloonMarker: MarkerImage
 {
-    @objc open var color: UIColor
-    @objc open var arrowSize = CGSize(width: 15, height: 11)
-    @objc open var font: UIFont
-    @objc open var textColor: UIColor
-    @objc open var insets: UIEdgeInsets
-    @objc open var minimumSize = CGSize()
+    open var color: UIColor
+    open var arrowSize = CGSize(width: 15, height: 11)
+    open var font: UIFont
+    open var textColor: UIColor
+    open var insets: UIEdgeInsets
+    open var minimumSize = CGSize()
     
     fileprivate var label: String?
     fileprivate var _labelSize: CGSize = CGSize()
     fileprivate var _paragraphStyle: NSMutableParagraphStyle?
     fileprivate var _drawAttributes = [NSAttributedString.Key : Any]()
     
-    @objc public init(color: UIColor, font: UIFont, textColor: UIColor, insets: UIEdgeInsets)
+    public init(color: UIColor, font: UIFont, textColor: UIColor, insets: UIEdgeInsets)
     {
         self.color = color
         self.font = font
@@ -43,7 +37,7 @@ open class BalloonMarker: MarkerImage
     {
         var offset = self.offset
         var size = self.size
-
+        
         if size.width == 0.0 && image != nil
         {
             size.width = image!.size.width
@@ -52,20 +46,20 @@ open class BalloonMarker: MarkerImage
         {
             size.height = image!.size.height
         }
-
+        
         let width = size.width
         let height = size.height
         let padding: CGFloat = 8.0
-
+        
         var origin = point
         origin.y -= height / 2
-
+        
         if let chart = chartView,
             origin.x + width + arrowSize.width > chart.bounds.size.width //Too far right
         {
             offset.x =  0 - width - arrowSize.width
         }
-
+        
         if origin.y + offset.y < 0 //Too high
         {
             offset.y = height + padding;
@@ -75,7 +69,7 @@ open class BalloonMarker: MarkerImage
         {
             offset.y = chart.bounds.size.height - origin.y - height - padding
         }
-
+        
         return offset
     }
     
@@ -94,10 +88,10 @@ open class BalloonMarker: MarkerImage
         rect.origin.y -= size.height / 2.0
         
         context.saveGState()
-
+        
         context.setStrokeColor(color.cgColor)
         context.setFillColor(UIColor.black.cgColor)
-
+        
         if offset.x < 0
         {
             //left side balloon
@@ -118,7 +112,7 @@ open class BalloonMarker: MarkerImage
             context.addLine(to: CGPoint(x: rect.origin.x, y: rect.origin.y))
             
             context.drawPath(using: CGPathDrawingMode.fillStroke)
-
+            
             rect.origin.x += self.insets.left
         }
         else
@@ -160,10 +154,10 @@ open class BalloonMarker: MarkerImage
         } else {
             rect.origin.y += self.insets.top
         }
-
+        
         rect.size.height -= self.insets.top + self.insets.bottom
         rect.size.width -= self.insets.left + self.insets.right
-
+        
         UIGraphicsPushContext(context)
         
         label.draw(in: rect, withAttributes: _drawAttributes)
@@ -179,7 +173,7 @@ open class BalloonMarker: MarkerImage
         self.textColor = color
     }
     
-    @objc open func setLabel(_ newLabel: String)
+    open func setLabel(_ newLabel: String)
     {
         label = newLabel
         

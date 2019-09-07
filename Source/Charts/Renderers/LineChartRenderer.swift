@@ -311,11 +311,11 @@ open class LineChartRenderer: LineRadarRenderer
         
         context.saveGState()
 
-            if _lineSegments.count != pointsPerEntryPair
-            {
-                // Allocate once in correct size
-                _lineSegments = [CGPoint](repeating: CGPoint(), count: pointsPerEntryPair)
-            }
+        if _lineSegments.count != pointsPerEntryPair
+        {
+            // Allocate once in correct size
+            _lineSegments = [CGPoint](repeating: CGPoint(), count: pointsPerEntryPair)
+        }
             
         for j in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
         {
@@ -348,8 +348,10 @@ open class LineChartRenderer: LineRadarRenderer
                 _lineSegments[1] = _lineSegments[0]
             }
 
+            var colors = [CGColor]()
             for i in 0..<_lineSegments.count
             {
+                colors.append(dataSet.color(atIndex: Int(_lineSegments[i].y)).cgColor)
                 _lineSegments[i] = _lineSegments[i].applying(valueToPixelMatrix)
             }
             
@@ -365,9 +367,89 @@ open class LineChartRenderer: LineRadarRenderer
                 continue
             }
             
-            // get the color that is set for this line-segment
-            context.setStrokeColor(dataSet.color(atIndex: j).cgColor)
-            context.strokeLineSegments(between: _lineSegments)
+            
+            if isDrawSteppedEnabled
+            {
+                context.saveGState()
+                
+                if _lineSegments[2].y != _lineSegments[3].y
+                {
+          
+                    let x = _lineSegments[3].x - 2
+                    var topPoint: CGPoint
+                    var topGroundPoint: CGPoint
+                    let bottomGroundPoint = CGPoint(x: x + 1 , y:CGPoint(x: e!.x, y:0).applying(valueToPixelMatrix).y)
+                    var color: CGColor
+                    var toGroundColor: CGColor
+                    let transitioningToNewY = _lineSegments[2].y != _lineSegments[3].y
+
+                    if _lineSegments[2].y > _lineSegments[3].y
+                    {
+                        topPoint = CGPoint(x: x, y:_lineSegments[3].y)
+                        topGroundPoint = CGPoint(x: x, y:_lineSegments[2].y)
+                        
+                        color = colors[3]
+                        toGroundColor = colors[0]
+                    }
+                    else
+                    {
+                        topPoint = CGPoint(x: x, y:_lineSegments[2].y)
+                        topGroundPoint = CGPoint(x: x, y:_lineSegments[3].y)
+                        color = colors[0]
+                        toGroundColor = colors[3]
+                    }
+                    
+                    if transitioningToNewY {
+                        //Draw vertical line between tiers
+                        context.setFillColor(color)
+                        
+                        context.beginPath()
+                        context.move(to: topPoint)
+                        context.addLine(to: CGPoint(
+                            x: topPoint.x + 2,
+                            y: topPoint.y))
+                        context.addLine(to: bottomGroundPoint)
+                        context.addLine(to: topPoint)
+                        
+                        context.drawPath(using: CGPathDrawingMode.fill)
+                        
+                        if (e.y != 0) {
+                            //Draw vertical line between bottom tier and ground
+                            
+                            context.setFillColor(toGroundColor)
+                            
+                            context.beginPath()
+                            context.move(to: topGroundPoint)
+                            context.addLine(to: CGPoint(
+                                x: topGroundPoint.x + 2,
+                                y: topGroundPoint.y))
+                            context.addLine(to: bottomGroundPoint)
+                            context.addLine(to: topGroundPoint)
+                            
+                            context.drawPath(using: CGPathDrawingMode.fill)
+                        }
+                    }
+                }
+                
+                // get the color that is set for this line-segment
+                context.setStrokeColor(colors[0])
+                
+                if _lineSegments[0].x != _lineSegments[1].x {
+                    _lineSegments[1] = CGPoint(x: _lineSegments[1].x - 2, y: _lineSegments[1].y)
+                    context.strokeLineSegments(between: [_lineSegments[0], _lineSegments[1]])
+                }
+
+                context.restoreGState()
+
+            }
+            else
+            {
+                // get the color that is set for this line-segment
+                context.setStrokeColor(dataSet.color(atIndex: j).cgColor)
+                context.strokeLineSegments(between: _lineSegments)
+
+            }
+            
         }
         
         context.restoreGState()
@@ -693,7 +775,7 @@ open class LineChartRenderer: LineRadarRenderer
                 , set.isHighlightEnabled
                 else { continue }
             
-            guard let e = set.entryForXValue(high.x, closestToY: high.y) else { continue }
+            guard let e = set.entryForIndex(high.dataIndex) else { continue }  //set.entryForXValue(high.x, closestToY: high.y) else { continue }
             
             if !isInBoundsX(entry: e, dataSet: set)
             {

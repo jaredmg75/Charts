@@ -527,9 +527,20 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
                 h = nil
                 _indicesToHighlight.removeAll(keepingCapacity: false)
             }
-            else
+            else if let data = _data
             {
-                _indicesToHighlight = [h!]
+                _indicesToHighlight = []
+
+                for i in 0 ..< data.dataSetCount {
+                    let dataSet = data._dataSets[i]
+                    
+                    for j in 0 ..< dataSet.entryCount {
+                        let otherEntry = dataSet.entryForIndex(j)
+                        if otherEntry?.x == entry?.x {
+                            _indicesToHighlight.append(Highlight(x: otherEntry!.x, y: otherEntry!.y, dataSetIndex: i, dataIndex: j))
+                        }
+                    }
+                }                
             }
         }
         
@@ -583,9 +594,9 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         {
             let highlight = _indicesToHighlight[i]
             
-            guard let
-                set = data?.getDataSetByIndex(highlight.dataSetIndex),
-                let e = _data?.entryForHighlight(highlight)
+            guard let data = data,
+                let set = data.getDataSetByIndex(highlight.dataSetIndex),
+                let e = set.entryForIndex(highlight.dataIndex)
                 else { continue }
             
             let entryIndex = set.entryIndex(entry: e)
@@ -601,9 +612,13 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             {
                 continue
             }
+            
+            // Hack!
+            let colorSetIndex = (i + 1) % (data.dataSetCount)
+            let color = data.getDataSetByIndex(colorSetIndex)?.color(atIndex: 0)
 
             // callbacks to update the content
-            marker.refreshContent(entry: e, highlight: highlight)
+            marker.refreshContent(entry: e, highlight: highlight, color: color!)
             
             // draw the marker
             marker.draw(context: context, point: pos)
