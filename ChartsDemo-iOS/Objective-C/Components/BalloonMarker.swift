@@ -58,13 +58,12 @@ open class BalloonMarker: MarkerImage
         let padding: CGFloat = 8.0
 
         var origin = point
-        origin.x += padding
         origin.y -= height / 2
 
         if let chart = chartView,
-            origin.x + width + offset.x > chart.bounds.size.width //Too far right
+            origin.x + width + arrowSize.width > chart.bounds.size.width //Too far right
         {
-            offset.x = chart.bounds.size.width - origin.x - width - padding
+            offset.x =  0 - width - arrowSize.width
         }
 
         if origin.y + offset.y < 0 //Too high
@@ -92,7 +91,6 @@ open class BalloonMarker: MarkerImage
                 x: point.x + offset.x,
                 y: point.y + offset.y),
             size: size)
-//        rect.origin.x += size.width
         rect.origin.y -= size.height / 2.0
         
         context.saveGState()
@@ -100,8 +98,32 @@ open class BalloonMarker: MarkerImage
         context.setStrokeColor(color.cgColor)
         context.setFillColor(UIColor.black.cgColor)
 
-//        if offset.y > 0
-//        {
+        if offset.x < 0
+        {
+            //left side balloon
+            context.beginPath()
+            context.move(to: rect.origin)
+            context.addLine(to: CGPoint(x: rect.origin.x + rect.size.width, y: rect.origin.y))
+            context.addLine(to: CGPoint(
+                x: rect.origin.x + rect.size.width,
+                y: rect.origin.y + (rect.size.height / 2.0) - (arrowSize.height / 2)))
+            context.addLine(to: CGPoint(
+                x: point.x,
+                y: point.y))
+            context.addLine(to: CGPoint(
+                x: rect.origin.x + rect.size.width,
+                y: rect.origin.y + (rect.size.height / 2.0) + (arrowSize.height / 2)))
+            context.addLine(to: CGPoint(x: rect.origin.x + rect.size.width, y: rect.origin.y + rect.height))
+            context.addLine(to: CGPoint(x: rect.origin.x, y: rect.origin.y + rect.height))
+            context.addLine(to: CGPoint(x: rect.origin.x, y: rect.origin.y))
+            
+            context.drawPath(using: CGPathDrawingMode.fillStroke)
+
+            rect.origin.x += self.insets.left
+        }
+        else
+        {
+            //Right side balloon
             context.beginPath()
             context.move(to: CGPoint(
                 x: rect.origin.x + arrowSize.width,
@@ -127,42 +149,11 @@ open class BalloonMarker: MarkerImage
             context.addLine(to: CGPoint(
                 x: rect.origin.x + arrowSize.width,
                 y: rect.origin.y))
-
+            
             context.drawPath(using: CGPathDrawingMode.fillStroke)
-        
-
-//        }
-//        else
-//        {
-//            context.beginPath()
-//            context.move(to: CGPoint(
-//                x: rect.origin.x,
-//                y: rect.origin.y))
-//            context.addLine(to: CGPoint(
-//                x: rect.origin.x + rect.size.width,
-//                y: rect.origin.y))
-//            context.addLine(to: CGPoint(
-//                x: rect.origin.x + rect.size.width,
-//                y: rect.origin.y + rect.size.height - arrowSize.height))
-//            context.addLine(to: CGPoint(
-//                x: rect.origin.x + (rect.size.width + arrowSize.width) / 2.0,
-//                y: rect.origin.y + rect.size.height - arrowSize.height))
-//            //arrow vertex
-//            context.addLine(to: CGPoint(
-//                x: point.x,
-//                y: point.y))
-//            context.addLine(to: CGPoint(
-//                x: rect.origin.x + (rect.size.width - arrowSize.width) / 2.0,
-//                y: rect.origin.y + rect.size.height - arrowSize.height))
-//            context.addLine(to: CGPoint(
-//                x: rect.origin.x,
-//                y: rect.origin.y + rect.size.height - arrowSize.height))
-//            context.addLine(to: CGPoint(
-//                x: rect.origin.x,
-//                y: rect.origin.y))
-////            context.fillPath()
-//            context.drawPath(using: CGPathDrawingMode.stroke)
-//        }
+            
+            rect.origin.x += self.arrowSize.width + self.insets.left
+        }
         
         if offset.y > 0 {
             rect.origin.y += self.insets.top + arrowSize.height
@@ -170,7 +161,6 @@ open class BalloonMarker: MarkerImage
             rect.origin.y += self.insets.top
         }
 
-        rect.origin.x += self.arrowSize.width + self.insets.left
         rect.size.height -= self.insets.top + self.insets.bottom
         rect.size.width -= self.insets.left + self.insets.right
 
