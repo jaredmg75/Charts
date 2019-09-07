@@ -192,62 +192,41 @@
     {
         set1 = [[LineChartDataSet alloc] initWithEntries:yVals1 label:@"DataSet 1"];
         set1.axisDependency = AxisDependencyLeft;
-        [set1 setColor:[UIColor colorWithRed:51/255.f green:181/255.f blue:229/255.f alpha:1.f]];
-        [set1 setCircleColor:UIColor.whiteColor];
         set1.lineWidth = 2.0;
-        set1.circleRadius = 3.0;
-        set1.fillAlpha = 65/255.0;
-        set1.fillColor = [UIColor colorWithRed:51/255.f green:181/255.f blue:229/255.f alpha:1.f];
-        set1.highlightColor = [UIColor colorWithRed:244/255.f green:117/255.f blue:117/255.f alpha:1.f];
+        [set1 setColor:UIColor.redColor];
         set1.drawCircleHoleEnabled = NO;
-        set1.drawValuesEnabled = NO;
+        set1.highlightLineWidth = 2;
+        set1.highlightColor = UIColor.grayColor;
+        set1.drawHorizontalHighlightIndicatorEnabled = NO;
+        set1.drawVerticalHighlightIndicatorEnabled = YES;
+        set1.drawValuesEnabled = YES;
         
         set2 = [[LineChartDataSet alloc] initWithEntries:yVals2 label:@"DataSet 2"];
         set2.axisDependency = AxisDependencyRight;
-        [set2 setColor:UIColor.redColor];
-        [set2 setCircleColor:UIColor.whiteColor];
-        set2.lineWidth = 2.0;
-        set2.circleRadius = 3.0;
-        set2.fillAlpha = 65/255.0;
-        set2.fillColor = UIColor.redColor;
-        set2.highlightColor = [UIColor colorWithRed:244/255.f green:117/255.f blue:117/255.f alpha:1.f];
+        [set2 setColor:UIColor.yellowColor];
         set2.drawCircleHoleEnabled = NO;
-        set1.drawValuesEnabled = NO;
+        set2.lineWidth = 2.0;
+        set2.highlightLineWidth = 2;
+        set2.highlightColor = UIColor.grayColor;
+        set2.drawHorizontalHighlightIndicatorEnabled = NO;
+        set2.drawVerticalHighlightIndicatorEnabled = YES;
+        set2.drawValuesEnabled = YES;
 
         set3 = [[LineChartDataSet alloc] initWithEntries:yVals3 label:@"DataSet 3"];
         set3.axisDependency = AxisDependencyRight;
-        [set3 setColor:UIColor.yellowColor];
-        [set3 setCircleColor:UIColor.whiteColor];
-        set3.lineWidth = 2.0;
-        set3.circleRadius = 3.0;
-        set3.fillAlpha = 65/255.0;
-        set3.fillColor = [UIColor.yellowColor colorWithAlphaComponent:200/255.f];
-        set3.highlightColor = [UIColor colorWithRed:244/255.f green:117/255.f blue:117/255.f alpha:1.f];
+        [set3 setColor:UIColor.blueColor];
         set3.drawCircleHoleEnabled = NO;
-        set1.drawValuesEnabled = NO;
+        set3.lineWidth = 2.0;
+        set3.highlightLineWidth = 2;
+        set3.highlightColor = UIColor.grayColor;
+        set3.drawHorizontalHighlightIndicatorEnabled = NO;
+        set3.drawVerticalHighlightIndicatorEnabled = YES;
+        set3.drawValuesEnabled = YES;
 
         NSMutableArray *dataSets = [[NSMutableArray alloc] init];
         [dataSets addObject:set1];
         [dataSets addObject:set2];
         [dataSets addObject:set3];
-        
-        set1.highlightLineWidth = 2;
-        set1.highlightColor = UIColor.grayColor;
-        set1.drawHorizontalHighlightIndicatorEnabled = NO;
-        set1.drawVerticalHighlightIndicatorEnabled = YES;
-        set1.drawValuesEnabled = NO;
-        
-        set2.highlightLineWidth = 2;
-        set2.highlightColor = UIColor.grayColor;
-        set2.drawHorizontalHighlightIndicatorEnabled = NO;
-        set2.drawVerticalHighlightIndicatorEnabled = YES;
-        set2.drawValuesEnabled = NO;
-
-        set3.highlightLineWidth = 2;
-        set3.highlightColor = UIColor.grayColor;
-        set3.drawHorizontalHighlightIndicatorEnabled = NO;
-        set3.drawVerticalHighlightIndicatorEnabled = YES;
-        set3.drawValuesEnabled = NO;
 
         LineChartData *data = [[LineChartData alloc] initWithDataSets:dataSets];
         [data setValueTextColor:UIColor.whiteColor];

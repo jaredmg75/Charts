@@ -21,7 +21,7 @@ open class XYMarkerView: BalloonMarker
         yFormatter.maximumFractionDigits = 1
     }
     
-    open override func refreshContent(entry: ChartDataEntry, highlight: Highlight)
+    open override func refreshContent(entry: ChartDataEntry, highlight: Highlight, color: UIColor)
     {
         setLabel("x: " + xAxisValueFormatter!.stringForValue(entry.x, axis: nil) + ", y: " + yFormatter.string(from: NSNumber(floatLiteral: entry.y))!)
     }

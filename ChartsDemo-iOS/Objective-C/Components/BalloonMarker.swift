@@ -183,9 +183,10 @@ open class BalloonMarker: MarkerImage
         context.restoreGState()
     }
     
-    open override func refreshContent(entry: ChartDataEntry, highlight: Highlight)
+    open override func refreshContent(entry: ChartDataEntry, highlight: Highlight, color: UIColor)
     {
         setLabel(String(entry.y))
+        self.textColor = color
     }
     
     @objc open func setLabel(_ newLabel: String)

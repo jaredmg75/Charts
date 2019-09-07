@@ -71,7 +71,7 @@ open class MarkerImage: NSObject, IMarker
         return offset
     }
     
-    open func refreshContent(entry: ChartDataEntry, highlight: Highlight)
+    open func refreshContent(entry: ChartDataEntry, highlight: Highlight, color: UIColor)
     {
         // Do nothing here...
     }
