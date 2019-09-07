@@ -7,6 +7,7 @@
 
 import Foundation
 
+@objc(LVBalloonMarkerImage)
 open class LVBalloonMarker: MarkerImage
 {
     open var color: UIColor
