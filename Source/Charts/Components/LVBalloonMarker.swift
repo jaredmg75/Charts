@@ -10,19 +10,19 @@ import Foundation
 @objc(LVBalloonMarkerImage)
 open class LVBalloonMarker: MarkerImage
 {
-    open var color: UIColor
-    open var arrowSize = CGSize(width: 15, height: 11)
-    open var font: UIFont
-    open var textColor: UIColor
-    open var insets: UIEdgeInsets
-    open var minimumSize = CGSize()
+    @objc open var color: UIColor
+    @objc open var arrowSize = CGSize(width: 15, height: 11)
+    @objc open var font: UIFont
+    @objc open var textColor: UIColor
+    @objc open var insets: UIEdgeInsets
+    @objc open var minimumSize = CGSize()
     
     fileprivate var label: String?
     fileprivate var _labelSize: CGSize = CGSize()
     fileprivate var _paragraphStyle: NSMutableParagraphStyle?
     fileprivate var _drawAttributes = [NSAttributedString.Key : Any]()
     
-    public init(color: UIColor, font: UIFont, textColor: UIColor, insets: UIEdgeInsets)
+    @objc public init(color: UIColor, font: UIFont, textColor: UIColor, insets: UIEdgeInsets)
     {
         self.color = color
         self.font = font
